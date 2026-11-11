@@ -36,7 +36,7 @@ function convert_to_ascii( string $text, array $replacement_map ): ?string {
 		$result = $text;
 	} elseif ( wp_is_valid_utf8( $text ) ) {
 		$converted = strtr( $text, $replacement_map );
-		$converted = remove_accents( $converted );
+		$converted = remove_accents( $converted, REMOVE_ACCENTS_LOCALE );
 		$converted = trim( (string) preg_replace( WHITESPACE_RUN_PATTERN, ' ', $converted ) );
 
 		// A value made only of invisible characters would otherwise become an empty field.
@@ -70,7 +70,7 @@ function is_printable_ascii( string $text ): bool {
  * @return array<string, string> Characters to replace, mapped to their ASCII replacements.
  */
 function get_replacement_map(): array {
-	$default_map = REPLACEMENT_MAP + get_fullwidth_map();
+	$default_map = REPLACEMENT_MAP + get_fullwidth_map() + get_combining_mark_map();
 
 	/**
 	 * Filter the characters replaced before remove_accents().
@@ -114,7 +114,7 @@ function get_fullwidth_map(): array {
 		$fullwidth_map = array();
 
 		for ( $code_point = FULLWIDTH_FIRST; $code_point <= FULLWIDTH_LAST; ++$code_point ) {
-			$fullwidth_map[ encode_three_byte_utf8( $code_point ) ] = chr( $code_point - FULLWIDTH_OFFSET );
+			$fullwidth_map[ encode_utf8( $code_point ) ] = chr( $code_point - FULLWIDTH_OFFSET );
 		}
 	}
 
@@ -122,17 +122,109 @@ function get_fullwidth_map(): array {
 }
 
 /**
- * Encode a code point from U+0800 to U+FFFF as UTF-8, without mbstring.
+ * Map each combining diacritical mark to an empty string.
+ *
+ * @since 1.0.0
+ *
+ * @return array<string, string> Combining mark mapped to ''.
+ */
+function get_combining_mark_map(): array {
+	static $combining_mark_map = null;
+
+	if ( null === $combining_mark_map ) {
+		$combining_mark_map = array();
+
+		for ( $code_point = COMBINING_MARKS_FIRST; $code_point <= COMBINING_MARKS_LAST; ++$code_point ) {
+			$combining_mark_map[ encode_utf8( $code_point ) ] = '';
+		}
+	}
+
+	return $combining_mark_map;
+}
+
+/**
+ * Encode a code point from U+0080 to U+FFFF as UTF-8, without mbstring.
  *
  * @since 1.0.0
  *
  * @param int $code_point Unicode code point.
- * @return string Three-byte UTF-8 sequence.
+ * @return string Two- or three-byte UTF-8 sequence.
  */
-function encode_three_byte_utf8( int $code_point ): string {
-	return chr( 0xE0 | ( $code_point >> 12 ) )
-		. chr( 0x80 | ( ( $code_point >> 6 ) & 0x3F ) )
-		. chr( 0x80 | ( $code_point & 0x3F ) );
+function encode_utf8( int $code_point ): string {
+	$encoded = '';
+
+	if ( $code_point < 0x800 ) {
+		$encoded = chr( 0xC0 | ( $code_point >> 6 ) )
+			. chr( 0x80 | ( $code_point & 0x3F ) );
+	} else {
+		$encoded = chr( 0xE0 | ( $code_point >> 12 ) )
+			. chr( 0x80 | ( ( $code_point >> 6 ) & 0x3F ) )
+			. chr( 0x80 | ( $code_point & 0x3F ) );
+	}
+
+	return $encoded;
+}
+
+// ============================================================================
+// Shipping
+// ============================================================================
+
+/**
+ * Whether the cart ships to an address, so a label will be printed.
+ *
+ * False when nothing ships, or when every chosen shipping rate is local pickup,
+ * which is how WooCommerce's own Store API address validation decides it.
+ *
+ * @since 1.0.0
+ *
+ * @param mixed $chosen_methods Chosen rate IDs, such as "flat_rate:3"; null reads them from the session.
+ * @return bool True if a label will be printed.
+ */
+function does_cart_need_label( mixed $chosen_methods = null ): bool {
+	$needs_label = false;
+
+	if ( ! function_exists( 'WC' ) || ! WC()->cart instanceof \WC_Cart ) {
+		log_error( 'No cart during checkout; the label address was not checked.' );
+	} elseif ( ! WC()->cart->needs_shipping() ) {
+		// Nothing ships.
+	} else {
+		if ( ! is_array( $chosen_methods ) && WC()->session instanceof \WC_Session ) {
+			$chosen_methods = WC()->session->get( 'chosen_shipping_methods' );
+		}
+
+		$needs_label = ! is_local_pickup_only( is_array( $chosen_methods ) ? $chosen_methods : array() );
+	}
+
+	return $needs_label;
+}
+
+/**
+ * Whether every chosen shipping rate is a local pickup method.
+ *
+ * @since 1.0.0
+ *
+ * @param array $chosen_methods Chosen rate IDs, such as "local_pickup:5".
+ * @return bool True only if there is at least one rate and all are local pickup.
+ */
+function is_local_pickup_only( array $chosen_methods ): bool {
+	$pickup_method_ids = FALLBACK_LOCAL_PICKUP_METHOD_IDS;
+
+	if ( class_exists( \Automattic\WooCommerce\StoreApi\Utilities\LocalPickupUtils::class ) ) {
+		$pickup_method_ids = array_merge( $pickup_method_ids, \Automattic\WooCommerce\StoreApi\Utilities\LocalPickupUtils::get_local_pickup_method_ids() );
+	}
+
+	$is_pickup_only = ! empty( $chosen_methods );
+
+	foreach ( $chosen_methods as $chosen_method ) {
+		$method_id = is_string( $chosen_method ) ? strtok( $chosen_method, ':' ) : false;
+
+		if ( ! is_string( $method_id ) || ! in_array( $method_id, $pickup_method_ids, true ) ) {
+			$is_pickup_only = false;
+			break;
+		}
+	}
+
+	return $is_pickup_only;
 }
 
 // ============================================================================

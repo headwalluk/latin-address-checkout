@@ -111,7 +111,7 @@ class Classic_Checkout {
 	 * @param mixed $data   Posted checkout data.
 	 * @param mixed $errors Validation errors, a WP_Error.
 	 */
-	public function add_validation_errors( mixed $data, mixed $errors ): void {
+	public function add_validation_errors( mixed $data, mixed $errors = null ): void {
 		if ( empty( $this->blocked_fields ) ) {
 			return;
 		}
@@ -138,7 +138,7 @@ class Classic_Checkout {
 	 * @param mixed $posted_data Posted checkout data.
 	 * @param mixed $order       The order.
 	 */
-	public function record_changes( mixed $order_id, mixed $posted_data, mixed $order = null ): void {
+	public function record_changes( mixed $order_id, mixed $posted_data = null, mixed $order = null ): void {
 		if ( ! $order instanceof \WC_Order && is_numeric( $order_id ) ) {
 			$order = wc_get_order( (int) $order_id );
 		}
@@ -187,16 +187,15 @@ class Classic_Checkout {
 	 * @since 1.0.0
 	 *
 	 * @param array $data Posted checkout data.
-	 * @return string|null ADDRESS_TYPE_SHIPPING, ADDRESS_TYPE_BILLING, or null when nothing ships.
+	 * @return string|null ADDRESS_TYPE_SHIPPING, ADDRESS_TYPE_BILLING, or null when no label is printed.
 	 */
 	private function get_label_address_type( array $data ): ?string {
 		$label_type = null;
 
-		if ( ! function_exists( 'WC' ) || ! WC()->cart instanceof \WC_Cart ) {
-			log_error( 'No cart during classic checkout; the label address was not checked.' );
-		} elseif ( ! WC()->cart->needs_shipping() ) {
-			// Nothing ships, so no label is printed.
-		} elseif ( ! empty( $data['ship_to_different_address'] ) ) {
+		if ( ! does_cart_need_label( $data['shipping_method'] ?? null ) ) {
+			// Nothing ships, or it's all local pickup, so no label is printed.
+		} elseif ( ! empty( $data['ship_to_different_address'] ) && WC()->cart->needs_shipping_address() ) {
+			// The same condition WC_Checkout uses to read the shipping fieldset.
 			$label_type = ADDRESS_TYPE_SHIPPING;
 		} else {
 			$label_type = ADDRESS_TYPE_BILLING;

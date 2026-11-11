@@ -87,10 +87,22 @@ const ERROR_STATUS_NON_LATIN = 400;
 /**
  * Store API route that places an order. The pay-for-order route
  * (/checkout/{id}) also fires the customer hook and is skipped.
+ * Case-insensitive because WP_REST_Server matches routes that way.
  *
  * @since 1.0.0
  */
-const STORE_API_CHECKOUT_ROUTE_PATTERN = '#^/wc/store(/v\d+)?/checkout/?$#';
+const STORE_API_CHECKOUT_ROUTE_PATTERN = '#^/wc/store(/v\d+)?/checkout/?$#i';
+
+/**
+ * Shipping methods that print no label. Used when WooCommerce's
+ * LocalPickupUtils isn't available.
+ *
+ * @since 1.0.0
+ */
+const FALLBACK_LOCAL_PICKUP_METHOD_IDS = array(
+	'local_pickup',
+	'pickup_location',
+);
 
 /**
  * Conversion patterns.
@@ -99,6 +111,24 @@ const STORE_API_CHECKOUT_ROUTE_PATTERN = '#^/wc/store(/v\d+)?/checkout/?$#';
  */
 const PRINTABLE_ASCII_PATTERN = '/^[\x20-\x7E]*$/D';
 const WHITESPACE_RUN_PATTERN  = '/\s+/';
+
+/**
+ * Locale passed to remove_accents(). With none, it uses the site locale, and
+ * German or Danish sites would turn "ü" into "ue" and "å" into "aa".
+ *
+ * @since 1.0.0
+ */
+const REMOVE_ACCENTS_LOCALE = 'en_US';
+
+/**
+ * Combining diacritical marks (U+0300 to U+036F), removed before remove_accents().
+ * Its own decomposed-to-composed step needs the intl extension; removing the marks
+ * gives the same result without it.
+ *
+ * @since 1.0.0
+ */
+const COMBINING_MARKS_FIRST = 0x0300;
+const COMBINING_MARKS_LAST  = 0x036F;
 
 /**
  * Fullwidth forms of printable ASCII (U+FF01 to U+FF5E), typed by Chinese and
@@ -113,8 +143,8 @@ const FULLWIDTH_OFFSET = 0xFEE0;
 /**
  * Characters remove_accents() leaves alone, and what they become.
  *
- * Applied before remove_accents(). Fullwidth forms are added at run time by
- * get_replacement_map(). Fractions carry a leading space so "2½" becomes "2 1/2";
+ * Applied before remove_accents(). Fullwidth forms and combining marks are added
+ * at run time by get_replacement_map(). Fractions carry a leading space so "2½" becomes "2 1/2";
  * runs of spaces are collapsed afterwards.
  *
  * @since 1.0.0

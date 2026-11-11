@@ -25,7 +25,7 @@ For every name and address field, billing and shipping, the plugin does one of t
 
 Only the address the label is printed from can stop a checkout. A customer with a Cyrillic
 billing address who is sending a gift to Leeds can still check out, and orders that don't
-ship anything (downloads, virtual products) are never stopped.
+ship anything (downloads, virtual products, local pickup) are never stopped.
 
 Email, phone and the order notes field are left alone.
 

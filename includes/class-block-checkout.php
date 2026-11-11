@@ -56,7 +56,7 @@ class Block_Checkout {
 	 * @param mixed $request  The checkout request, a WP_REST_Request.
 	 * @throws RouteException When a shipping field can't be converted.
 	 */
-	public function convert_customer( mixed $customer, mixed $request ): void {
+	public function convert_customer( mixed $customer, mixed $request = null ): void {
 		$this->order_note->queue_changes( array() );
 
 		if ( ! $customer instanceof \WC_Customer ) {
@@ -71,7 +71,7 @@ class Block_Checkout {
 		$addresses = $this->read_addresses( $customer );
 
 		if ( should_process_checkout( ROUTE_BLOCK, $addresses ) ) {
-			$blocking_types = $this->cart_needs_shipping() ? array( ADDRESS_TYPE_SHIPPING ) : array();
+			$blocking_types = does_cart_need_label() ? array( ADDRESS_TYPE_SHIPPING ) : array();
 			$result         = $this->processor->process( $addresses, $blocking_types );
 
 			foreach ( $result->changes as $change ) {
@@ -155,24 +155,5 @@ class Block_Checkout {
 		}
 
 		return $addresses;
-	}
-
-	/**
-	 * Whether the cart has anything that ships.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return bool True if a label will be printed.
-	 */
-	private function cart_needs_shipping(): bool {
-		$needs_shipping = false;
-
-		if ( function_exists( 'WC' ) && WC()->cart instanceof \WC_Cart ) {
-			$needs_shipping = WC()->cart->needs_shipping();
-		} else {
-			log_error( 'No cart during block checkout; the label address was not checked.' );
-		}
-
-		return $needs_shipping;
 	}
 }

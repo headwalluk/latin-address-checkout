@@ -27,9 +27,10 @@ store owners.
 **Classic** (`Classic_Checkout`), inside `WC_Checkout::process_checkout()`:
 
 1. `woocommerce_checkout_posted_data` (priority 20): convert. By this point WooCommerce has
-   already copied billing into shipping if "ship to a different address" is unticked, so the
-   label address type is shipping when it's ticked and billing otherwise, and only when
-   `WC()->cart->needs_shipping()`
+   already copied billing into shipping unless it read the shipping fieldset, which it does only
+   when "ship to a different address" is ticked **and** `needs_shipping_address()`. The label
+   address type follows the same condition: shipping, else billing. None when
+   `does_cart_need_label()` is false
 2. `woocommerce_after_checkout_validation`: add one `WP_Error` naming every blocked field,
    with `id` set to the first, so WooCommerce highlights it
 3. `woocommerce_checkout_order_processed`: write the order note
@@ -39,9 +40,17 @@ store owners.
 1. `woocommerce_store_api_checkout_update_customer_from_request`: convert on `WC()->customer`,
    before `$customer->save()` and before the draft order copies its addresses from the
    customer. Throw `RouteException( 'latinaddr_non_latin_address', ..., 400 )` to refuse.
-   Label address is shipping when the cart needs shipping. The pay-for-order route
+   Label address is shipping when `does_cart_need_label()`. The pay-for-order route
    (`/checkout/{id}`) fires the same hook after it has set the order's addresses, so it is
-   skipped (`STORE_API_CHECKOUT_ROUTE_PATTERN`)
+   skipped (`STORE_API_CHECKOUT_ROUTE_PATTERN`, case-insensitive because `WP_REST_Server`
+   matches routes case-insensitively: a case-sensitive pattern let `/Checkout` bypass the check)
+
+`does_cart_need_label()` is false when nothing ships or every chosen rate is local pickup,
+matching the Store API's own address validation (`OrderController::validate_addresses()`).
+
+`convert_to_ascii()` passes `REMOVE_ACCENTS_LOCALE` (`en_US`) to `remove_accents()`, which
+otherwise uses the site locale (German turns `ü` into `ue`). Combining marks are stripped by the
+map because `remove_accents()` only recomposes them when `intl` is loaded.
 2. `woocommerce_store_api_checkout_order_processed`: write the order note
 
 `Order_Note` is shared by both routes. Changes are queued at conversion and written when the
@@ -96,6 +105,7 @@ All of them are documented in `docs/developers/hooks-and-filters.md`.
 These paths can refuse a paying customer's order, and they rewrite personal data on the order:
 
 - `Address_Processor::process()` and `convert_to_ascii()`
+- `does_cart_need_label()` and `is_local_pickup_only()`
 - `Classic_Checkout::convert_posted_data()`, `add_validation_errors()` and `get_label_address_type()`
 - `Block_Checkout::convert_customer()` and `is_place_order_request()`
 

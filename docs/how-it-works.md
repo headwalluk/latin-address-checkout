@@ -23,17 +23,19 @@ Each value goes through these steps:
    punctuation mark, the value is kept exactly as typed, extra spaces included
 2. **Swap out typographic characters.** Curly quotes and apostrophes become straight ones.
    Dashes become hyphens. Non-breaking and other special spaces become plain spaces.
-   Invisible characters (zero-width spaces, direction marks, soft hyphens) are removed. `ß`
+   Invisible characters (zero-width spaces, direction marks, soft hyphens) and separate
+   accent marks (an `e` followed by a combining accent, as some phones type it) are removed. `ß`
    becomes `ss`, `…` becomes `...`, fractions such as `½` become `1/2`, and the fullwidth
    letters and digits that Chinese and Japanese keyboards produce become their ordinary forms
 3. **Remove accents** with WordPress's own `remove_accents()`, so `é` becomes `e`, `ł`
-   becomes `l`, `Æ` becomes `AE`
+   becomes `l`, `Æ` becomes `AE`. It always uses the same rules, whatever language the site is
+   in, so `ü` becomes `u` on a German site too, not `ue`
 4. **Tidy spacing.** Runs of spaces become one, and spaces at the ends are trimmed
 5. **Check what's left.** If everything is now plain ASCII, the converted value is used.
    If anything else remains, the field can't be converted
 
-The conversion doesn't depend on the server's language settings or on optional PHP
-extensions, so it gives the same result on every host.
+The conversion doesn't depend on the site language, the server's locale or optional PHP
+extensions such as `intl`, so it gives the same result on every host.
 
 Scripts that aren't written in Latin letters, such as Cyrillic, Greek, Hebrew, Arabic, Chinese
 and Japanese, can't be converted. Turning `Москва` into `Moskva` is possible in principle, but
@@ -50,7 +52,7 @@ is printed from:
 - **The cart ships something and it isn't ticked**: the billing address, because WooCommerce
   uses it as the shipping address
 - **The Checkout block**: the shipping address, which is the one the block asks for first
-- **Nothing in the cart ships**: nothing stops the checkout
+- **Nothing in the cart ships, or the customer chose local pickup**: nothing stops the checkout
 
 The customer sees a message naming each field to change:
 

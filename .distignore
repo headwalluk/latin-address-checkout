@@ -7,7 +7,7 @@
 .gitattributes
 .github
 
-# Development notes (internal — not for end users)
+# Development notes and docs: not for the release zip
 dev-notes
 docs
 

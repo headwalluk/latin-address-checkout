@@ -1,0 +1,120 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Latin Address Checkout 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/latin-address-checkout\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-11-11T21:09:32+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Language: de_DE\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: latin-address-checkout\n"
+
+#. Plugin Name of the plugin
+#: latin-address-checkout.php
+msgid "Latin Address Checkout"
+msgstr "Latin Address Checkout"
+
+#. Plugin URI of the plugin
+#: latin-address-checkout.php
+msgid "https://github.com/headwalluk/latin-address-checkout"
+msgstr "https://github.com/headwalluk/latin-address-checkout"
+
+#. Description of the plugin
+#: latin-address-checkout.php
+msgid "Converts accented and typographic characters in WooCommerce checkout addresses to plain ASCII, and asks the customer to re-enter anything that can't be converted, for carriers that only accept ASCII."
+msgstr "Converts accented and typographic characters in WooCommerce checkout addresses to plain ASCII, and asks the customer to re-enter anything that can't be converted, for carriers that only accept ASCII."
+
+#. Author of the plugin
+#: latin-address-checkout.php
+msgid "Paul Faulkner"
+msgstr "Paul Faulkner"
+
+#. Author URI of the plugin
+#: latin-address-checkout.php
+msgid "https://headwall-hosting.com"
+msgstr "https://headwall-hosting.com"
+
+#: functions-private.php:154
+msgid "Billing first name"
+msgstr "Vorname für die Rechnungsstellung"
+
+#: functions-private.php:155
+msgid "Billing last name"
+msgstr "Nachname für die Rechnungsstellung"
+
+#: functions-private.php:156
+msgid "Billing company"
+msgstr "Abrechnungsunternehmen"
+
+#: functions-private.php:157
+msgid "Billing address line 1"
+msgstr "Rechnungsadresse, Zeile 1"
+
+#: functions-private.php:158
+msgid "Billing address line 2"
+msgstr "Rechnungsadresse, Zeile 2"
+
+#: functions-private.php:159
+msgid "Billing town / city"
+msgstr "Rechnungsort (Stadt)"
+
+#: functions-private.php:160
+msgid "Billing state / county"
+msgstr "Rechnungsadresse (Bundesstaat/Landkreis)"
+
+#: functions-private.php:161
+msgid "Billing postcode / ZIP"
+msgstr "Rechnungs-Postleitzahl"
+
+#: functions-private.php:164
+msgid "Shipping first name"
+msgstr "Vorname für den Versand"
+
+#: functions-private.php:165
+msgid "Shipping last name"
+msgstr "Nachname für den Versand"
+
+#: functions-private.php:166
+msgid "Shipping company"
+msgstr "Reederei"
+
+#: functions-private.php:167
+msgid "Shipping address line 1"
+msgstr "Lieferadresse, Zeile 1"
+
+#: functions-private.php:168
+msgid "Shipping address line 2"
+msgstr "Lieferadresse, Zeile 2"
+
+#: functions-private.php:169
+msgid "Shipping town / city"
+msgstr "Versandort"
+
+#: functions-private.php:170
+msgid "Shipping state / county"
+msgstr "Versandbundesstaat / Landkreis"
+
+#: functions-private.php:171
+msgid "Shipping postcode / ZIP"
+msgstr "Postleitzahl für den Versand"
+
+#. translators: %s: list of checkout field names, such as "Street address and Town / City"
+#: functions-private.php:228
+#, php-format
+msgid "We can only print delivery labels in Latin (English) letters. Please re-enter your %s using Latin letters only, or give an address, such as a PO box, that can be written that way."
+msgstr "Wir können Versandetiketten nur in lateinischen (englischen) Buchstaben drucken. Bitte geben Sie Ihre %s erneut ausschließlich in lateinischen Buchstaben ein oder geben Sie eine Adresse an, wie z. B. ein Postfach, die auf diese Weise geschrieben werden kann."
+
+#: includes/class-order-note.php:101
+msgid "Latin Address Checkout converted these address fields to plain ASCII for the delivery label:"
+msgstr "„Latin Address Checkout“ hat diese Adressfelder für den Versandetikett in reines ASCII-Format konvertiert:"
+
+#. translators: 1: field name, such as "Shipping town / city", 2: value as the customer entered it, 3: value stored on the order
+#: includes/class-order-note.php:107
+#, php-format
+msgid "%1$s: %2$s → %3$s"
+msgstr "%1$s: %2$s → %3$s"

@@ -4,7 +4,7 @@
 
 **Please don't report security vulnerabilities through public GitHub issues.**
 
-Email `webmaster@headwall-hosting.com` with enough detail to reproduce — affected version, reproduction steps, and impact. We'll respond promptly and credit you in the release notes unless you'd prefer to stay anonymous.
+Email `webmaster@headwall-hosting.com` with enough detail to reproduce it: the affected version, the steps to reproduce, and the impact. We'll respond promptly and credit you in the release notes unless you'd prefer to stay anonymous.
 
 ## Supported Versions
 

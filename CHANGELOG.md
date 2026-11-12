@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-11-12
+
 ### Added
 
 - Converts billing and shipping name and address fields to plain ASCII at checkout: typographic quotes, dashes and spaces, invisible characters, `ß`, fractions, fullwidth forms, then accents through `remove_accents()`. Already-ASCII values are kept byte for byte.

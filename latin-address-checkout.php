@@ -1,16 +1,16 @@
 <?php
 /**
  * Plugin Name: Latin Address Checkout
- * Plugin URI: https://github.com/headwalluk/latin-address-checkout
+ * Plugin URI: https://headwall-hosting.com/plugins/latin-address-checkout/
  * Description: Converts accented and typographic characters in WooCommerce checkout addresses to plain ASCII, and asks the customer to re-enter anything that can't be converted, for carriers that only accept ASCII.
  * Version: 1.0.0
  * Requires at least: 6.9
  * Requires PHP: 8.2
  * Requires Plugins: woocommerce
  * WC requires at least: 8.3
- * WC tested up to: 11.2
+ * WC tested up to: 11.3
  * Author: Paul Faulkner
- * Author URI: https://headwall-hosting.com
+ * Author URI: https://headwall-hosting.com/a-web-guys-blog/
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: latin-address-checkout

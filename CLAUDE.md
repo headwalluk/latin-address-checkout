@@ -44,6 +44,7 @@ store owners.
    (`/checkout/{id}`) fires the same hook after it has set the order's addresses, so it is
    skipped (`STORE_API_CHECKOUT_ROUTE_PATTERN`, case-insensitive because `WP_REST_Server`
    matches routes case-insensitively: a case-sensitive pattern let `/Checkout` bypass the check)
+2. `woocommerce_store_api_checkout_order_processed`: write the order note
 
 `does_cart_need_label()` is false when nothing ships or every chosen rate is local pickup,
 matching the Store API's own address validation (`OrderController::validate_addresses()`).
@@ -51,7 +52,6 @@ matching the Store API's own address validation (`OrderController::validate_addr
 `convert_to_ascii()` passes `REMOVE_ACCENTS_LOCALE` (`en_US`) to `remove_accents()`, which
 otherwise uses the site locale (German turns `ü` into `ue`). Combining marks are stripped by the
 map because `remove_accents()` only recomposes them when `intl` is loaded.
-2. `woocommerce_store_api_checkout_order_processed`: write the order note
 
 `Order_Note` is shared by both routes. Changes are queued at conversion and written when the
 order is processed. A hash in `_latinaddr_note_hash` stops a repeated event adding the same note
